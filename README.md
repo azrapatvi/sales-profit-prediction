@@ -58,19 +58,18 @@ An end-to-end data science project covering **Exploratory Data Analysis (EDA)** 
 
 ### Preprocessing
 - `StandardScaler` for numerical columns
-- `OneHotEncoder` (drop='first') for categorical columns
+- `OneHotEncoder` (drop='first', handle_unknown='ignore') for categorical columns
 - `ColumnTransformer` pipeline — fit on train, transform on test
+- Train/Test split: 72% / 28% (`random_state=42`)
 
 ### Models Evaluated
 
 | Model | Train R² | Test R² |
 |---|---|---|
 | Linear Regression | 0.699 | 0.702 |
-| Decision Tree | 1.000 ⚠️ | ~0.95 |
-| Gradient Boosting | — | 0.850 |
+| Decision Tree | 1.000 | 0.998 |
+| Gradient Boosting | 0.972 | 0.972 |
 | AdaBoost | — | — |
-
-> ⚠️ **Decision Tree overfits** — Train R² of 1.0 means it memorized the training data. Add `max_depth` and `min_samples_leaf` constraints to fix this.
 
 ### Hyperparameter Tuning
 
@@ -78,53 +77,55 @@ An end-to-end data science project covering **Exploratory Data Analysis (EDA)** 
 
 ```
 Best Params: learning_rate=0.1, max_depth=5, n_estimators=120, subsample=1.0
-Best CV Score (R²): 0.9854
+Best CV Score (R²): 0.9855
 ```
 
-### Known Bugs Fixed / To Fix
+### Final Model Performance (Tuned GradientBoostingRegressor)
 
-1. **Decision Tree overfitting** — use `max_depth=10, min_samples_leaf=5`
-2. **Wrong model used in Cell 29** — `model.predict()` was used instead of `gb.predict()`; `model` pointed to AdaBoost from the loop
-3. **GridSearch best model not used** — `grid.best_estimator_` should be used for final evaluation, not a new default instance
+```
+MAE  : 16.45
+MSE  : 960.08
+RMSE : 30.99
+R²   : 0.9953
+```
 
----
-
-## 🌐 Part 3 — Streamlit Web App (`main.py`)
-
-A live profit prediction web app built with Streamlit. Users fill in customer and product details and get an instant predicted profit along with an expected range.
-
-### Input Fields
-
-| Field | Type |
-|---|---|
-| Month | Dropdown |
-| Customer Age | Number (10–100) |
-| Customer Gender | Dropdown (M / F) |
-| Country | Text |
-| State | Text |
-| Product Category | Text |
-| Sub Category | Text |
-| Product Name | Text |
-| Order Quantity | Number |
-| Unit Cost | Number |
-| Unit Price | Number |
-
-### Output
-- **Predicted Profit** — single value from the model
-- **Expected Range** — predicted value ± 50 (confidence buffer)
-
-### Prerequisites
-Before running the app, save the trained model and preprocessor from `model_training.ipynb`:
+### Model & Preprocessor Saved
 
 ```python
 import pickle
 
 with open("model.pkl", "wb") as f:
-    pickle.dump(best_gb, f)         # your trained GradientBoosting model
+    pickle.dump(gb, f)
 
 with open("preprocessor.pkl", "wb") as f:
-    pickle.dump(preprocessor, f)    # your fitted ColumnTransformer
+    pickle.dump(preprocessor, f)
 ```
+
+---
+
+## 🌐 Part 3 — Streamlit Web App (`main.py`)
+
+A live profit prediction web app. Users fill in customer and product details and get an instant predicted profit along with an expected range.
+
+### Input Fields
+
+| Field | Type | Options |
+|---|---|---|
+| Month | Dropdown | January – December (12 options) |
+| Customer Age | Number | 10 – 100 |
+| Customer Gender | Dropdown | M, F |
+| Country | Dropdown | Australia, Canada, France, Germany, United Kingdom, United States |
+| State | Dropdown | All 53 states/regions across the 6 countries |
+| Product Category | Dropdown | Accessories, Bikes, Clothing |
+| Sub Category | Dropdown | 17 sub-categories (Bike Racks, Road Bikes, Helmets, etc.) |
+| Product | Dropdown | All 130 products from the dataset |
+| Order Quantity | Number | Min 1 |
+| Unit Cost | Number | — |
+| Unit Price | Number | — |
+
+### Output
+- **Predicted Profit** — single value from the model
+- **Expected Range** — predicted value ± 50
 
 ### Run the App
 
@@ -148,8 +149,8 @@ streamlit run main.py
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/<your-username>/bike-sales-eda-profit-prediction.git
-   cd bike-sales-eda-profit-prediction
+   git clone https://github.com/<your-username>/sales-profit-prediction-ml.git
+   cd sales-profit-prediction-ml
    ```
 
 2. Install dependencies:
@@ -159,7 +160,7 @@ streamlit run main.py
 
 3. Open notebooks in order:
    - `sales_eda.ipynb` — start here for data understanding
-   - `model_training.ipynb` — train the model and save `model.pkl` + `preprocessor.pkl`
+   - `model_training.ipynb` — train the model, this saves `model.pkl` and `preprocessor.pkl`
 
 4. Launch the web app:
    ```bash
@@ -172,8 +173,7 @@ streamlit run main.py
 
 ## 📌 Future Improvements
 
-- Fix the 3 bugs in `model_training.ipynb` (listed above)
-- Try `XGBoostRegressor` or `LightGBM` for better performance
+- Try `XGBoostRegressor` or `LightGBM` for comparison
 - Add cross-validation scores for all models
 - Deploy the Streamlit app on [Streamlit Cloud](https://streamlit.io/cloud) for public access
-- Add input validation in the web app (e.g. check country/state against known values)
+- Filter states dynamically based on selected country in the web app

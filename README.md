@@ -1,6 +1,6 @@
-# 🚲 Bike Sales — EDA & Profit Prediction
+# 💰 Sales Profit Prediction — EDA & Machine Learning
 
-An end-to-end data science project on a real-world bike sales dataset covering **Exploratory Data Analysis (EDA)** and **Machine Learning-based Profit Prediction**.
+An end-to-end data science project covering **Exploratory Data Analysis (EDA)** and **Machine Learning-based Profit Prediction** with a Streamlit web app.
 
 ---
 

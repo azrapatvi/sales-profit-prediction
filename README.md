@@ -1,4 +1,4 @@
-# 🚲 Sales — EDA & Profit Prediction
+# 🚲 Bike Sales — EDA & Profit Prediction
 
 An end-to-end data science project on a real-world bike sales dataset covering **Exploratory Data Analysis (EDA)** and **Machine Learning-based Profit Prediction**.
 
@@ -9,6 +9,9 @@ An end-to-end data science project on a real-world bike sales dataset covering *
 ```
 ├── sales_eda.ipynb          # Exploratory Data Analysis
 ├── model_training.ipynb     # ML Model Training & Evaluation
+├── main.py                  # Streamlit Web App
+├── model.pkl                # Trained GradientBoosting model (saved after training)
+├── preprocessor.pkl         # Fitted ColumnTransformer (saved after training)
 └── README.md
 ```
 
@@ -86,12 +89,58 @@ Best CV Score (R²): 0.9854
 
 ---
 
+## 🌐 Part 3 — Streamlit Web App (`main.py`)
+
+A live profit prediction web app built with Streamlit. Users fill in customer and product details and get an instant predicted profit along with an expected range.
+
+### Input Fields
+
+| Field | Type |
+|---|---|
+| Month | Dropdown |
+| Customer Age | Number (10–100) |
+| Customer Gender | Dropdown (M / F) |
+| Country | Text |
+| State | Text |
+| Product Category | Text |
+| Sub Category | Text |
+| Product Name | Text |
+| Order Quantity | Number |
+| Unit Cost | Number |
+| Unit Price | Number |
+
+### Output
+- **Predicted Profit** — single value from the model
+- **Expected Range** — predicted value ± 50 (confidence buffer)
+
+### Prerequisites
+Before running the app, save the trained model and preprocessor from `model_training.ipynb`:
+
+```python
+import pickle
+
+with open("model.pkl", "wb") as f:
+    pickle.dump(best_gb, f)         # your trained GradientBoosting model
+
+with open("preprocessor.pkl", "wb") as f:
+    pickle.dump(preprocessor, f)    # your fitted ColumnTransformer
+```
+
+### Run the App
+
+```bash
+streamlit run main.py
+```
+
+---
+
 ## 🛠️ Tech Stack
 
 - Python 3.x
 - pandas, numpy
 - matplotlib, seaborn
 - scikit-learn
+- streamlit
 
 ---
 
@@ -105,12 +154,17 @@ Best CV Score (R²): 0.9854
 
 2. Install dependencies:
    ```bash
-   pip install pandas numpy matplotlib seaborn scikit-learn
+   pip install pandas numpy matplotlib seaborn scikit-learn streamlit
    ```
 
 3. Open notebooks in order:
    - `sales_eda.ipynb` — start here for data understanding
-   - `model_training.ipynb` — then move to modelling
+   - `model_training.ipynb` — train the model and save `model.pkl` + `preprocessor.pkl`
+
+4. Launch the web app:
+   ```bash
+   streamlit run main.py
+   ```
 
 > No local data download needed — the dataset is loaded directly from a public GitHub URL inside the notebooks.
 
@@ -121,4 +175,5 @@ Best CV Score (R²): 0.9854
 - Fix the 3 bugs in `model_training.ipynb` (listed above)
 - Try `XGBoostRegressor` or `LightGBM` for better performance
 - Add cross-validation scores for all models
-- Build a Streamlit app for live profit prediction
+- Deploy the Streamlit app on [Streamlit Cloud](https://streamlit.io/cloud) for public access
+- Add input validation in the web app (e.g. check country/state against known values)
